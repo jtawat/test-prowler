@@ -8,5 +8,5 @@ phases:
       - poetry install  --with dev
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo Logging in to Codebuild..
       - python copy_custom_checks.py --checks-folder custom_checks --tests-folder custom_tests
