@@ -1,0 +1,35 @@
+{
+    "Provider": "aws",
+    "CheckID": "ec2_ebs_unused_volumes",
+    "CheckTitle": "Ensure no unused EBS volumes exist",
+    "CheckType": [
+        "Cost Optimization"
+    ],
+    "ServiceName": "ec2",
+    "SubServiceName": "volume",
+    "ResourceIdTemplate": "arn:partition:service:region:account-id:resource-id",
+    "Severity": "medium",
+    "ResourceType": "AwsEc2Volume",
+    "Description": "Ensure no unused EBS volumes exist",
+    "Risk": "Unused EBS volumes incur charges and may pose a security risk if they contain sensitive data.",
+    "RelatedUrl": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-deleting-volume.html",
+    "Remediation": {
+        "Code": {
+            "CLI": "",
+            "NativeIaC": "",
+            "Other": "",
+            "Terraform": ""
+        },
+        "Recommendation": {
+            "Text": "Identify and delete unused EBS volumes to optimize costs and reduce potential security risks.",
+            "Url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-deleting-volume.html"
+        }
+    },
+    "Categories": [
+        "cost-optimization",
+        "security"
+    ],
+    "DependsOn": [],
+    "RelatedTo": [],
+    "Notes": ""
+}

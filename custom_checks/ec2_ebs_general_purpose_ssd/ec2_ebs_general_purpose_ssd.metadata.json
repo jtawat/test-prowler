@@ -1,0 +1,36 @@
+{
+    "Provider": "aws",
+    "CheckID": "ec2_ebs_general_purpose_ssd",
+    "CheckTitle": "Ensure General Purpose SSD volumes are used for appropriate workloads",
+    "CheckType": [
+      "Sustainability"
+    ],
+    "ServiceName": "ebs",
+    "SubServiceName": "volume",
+    "ResourceIdTemplate": "arn:partition:service:region:account-id:resource-id",
+    "Severity": "medium",
+    "ResourceType": "AwsEc2Volume",
+    "Description": "Ensure General Purpose SSD volumes are used for appropriate workloads such as virtual desktops, medium-sized single instance databases, latency-sensitive interactive applications, development and test environments, and boot volumes.",
+    "Risk": "Using General Purpose SSD volumes for workloads that require higher performance or lower latency can lead to suboptimal performance and higher costs. Conversely, using more expensive volume types for workloads that don't require high performance can result in unnecessary costs.",
+    "RelatedUrl": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html",
+    "Remediation": {
+      "Code": {
+        "CLI": "",
+        "NativeIaC": "",
+        "Other": "",
+        "Terraform": ""
+      },
+      "Recommendation": {
+        "Text": "Review your workloads and ensure that General Purpose SSD volumes are used only for appropriate use cases. Consider using Provisioned IOPS SSD volumes for workloads that require higher performance or lower latency, or Cold HDD volumes for less critical workloads.",
+        "Url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+      }
+    },
+    "Categories": [
+      "cost-optimizing",
+      "sustainability"
+    ],
+    "DependsOn": [],
+    "RelatedTo": [],
+    "Notes": ""
+  }
+  

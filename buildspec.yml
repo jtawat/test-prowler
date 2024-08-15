@@ -1,0 +1,55 @@
+---
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install pytest poetry
+      - poetry install  --with dev
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - python copy_custom_checks.py --checks-folder custom_checks --tests-folder custom_tests
+      - poetry run pytest tests/providers/aws/services/ec2/ec2_ebs_unused_volumes
+
+  build:
+    commands:
+      - docker build -t "$IMAGE_REPO_NAME" .
+
+  post_build:
+    # CODEBUILD_WEBHOOK_HEAD_REF contains the branch, tag, or commit hash reference when triggered via the webhook
+    # This environment variable is empty if the build is started manually
+    # Thus, we set the value to CODEBUILD_SOURCE_VERSION which is the value passed by CodeBuild when the build starts
+    commands:
+      - |
+          # List docker images
+          docker image ls
+        
+          # Assign source version if not triggered by webhook
+          if [[ -z "$CODEBUILD_WEBHOOK_HEAD_REF" ]]; then
+            CODEBUILD_WEBHOOK_HEAD_REF="$CODEBUILD_SOURCE_VERSION"
+          fi
+
+          # Push version and latest tags
+          if [[ "$CODEBUILD_WEBHOOK_HEAD_REF" =~ $GIT_PATTERN ]]; then
+        
+            # Push using commit hash
+            docker tag "$IMAGE_REPO_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION"
+            docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION"
+            echo "Pushed $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION to $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION"
+        
+            # Push latest tag
+            docker tag "$IMAGE_REPO_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest"
+            docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest"
+            echo "Pushed $IMAGE_REPO_NAME:latest to $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest"
+        
+            # Push version specific if matches
+            if [[ "$CODEBUILD_WEBHOOK_HEAD_REF" =~ ^refs/tags/.* ]]; then
+              GIT_TAG="${CODEBUILD_WEBHOOK_HEAD_REF#refs/tags/}"
+              GIT_TAG="${GIT_TAG#v}"
+              docker tag "$IMAGE_REPO_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$GIT_TAG"
+              docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$GIT_TAG"
+              echo "Pushed $IMAGE_REPO_NAME:$GIT_TAG to $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$GIT_TAG"
+            fi
+          fi
