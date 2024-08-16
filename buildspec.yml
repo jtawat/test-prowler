@@ -20,3 +20,15 @@ phases:
 
           # echo the new URL
           echo "NEW_RELATED_URL is set to: $NEW_RELATED_URL"
+
+          # Update metadata files
+          METADATA_FILES=$(find custom_checks -name "*.metadata.json")
+          for file in $METADATA_FILES; do
+            jq --arg url "$NEW_RELATED_URL" '.RelatedUrl = $url' "$file" > temp.json && mv temp.json "$file"
+            
+            # Print the updated content
+            cat "$file"
+            echo "---"
+          done
+
+
