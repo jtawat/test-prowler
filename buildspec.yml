@@ -2,11 +2,6 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - pip install pytest poetry
-      - poetry install  --with dev
   pre_build:
     commands:
       - echo Logging in to Codebuild..
-      - python copy_custom_checks.py --checks-folder custom_checks --tests-folder custom_tests
