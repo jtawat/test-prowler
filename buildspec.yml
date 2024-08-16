@@ -6,26 +6,6 @@ phases:
     commands:
       - echo Logging in to Codebuild..
       - |
-          ENVIRONMENT_NAME="${ENVIRONMENT:-production}"
-          case "$ENVIRONMENT_NAME" in
-            "dev")
-              NEW_RELATED_URL="https://staging.kaloscloud.io/"
-              ;;
-            "production")
-              NEW_RELATED_URL="https://kaloscloud.io/"
-              ;;
-          esac
-          METADATA_FILES=$(find custom_checks -name "*.metadata.json")
-          for file in $METADATA_FILES; do
-            jq --arg url "$NEW_RELATED_URL" '.RelatedUrl = $url' "$file" > temp.json && mv temp.json "$file"
-          done
-      - |
-          echo "Validating updated metadata.json files..."
-          for file in $METADATA_FILES; do
-            UPDATED_URL=$(jq -r '.RelatedUrl' "$file")
-            if [ "$UPDATED_URL" != "$NEW_RELATED_URL" ]; then
-              echo "Validation failed for $file: RelatedUrl is $UPDATED_URL, expected $NEW_RELATED_URL"
-              exit 1
-            fi
-          done
-          echo "All metadata.json files updated successfully."
+          # Set and echo environment variable
+          ENVIRONMENT_NAME="${ENVIRONMENT}"
+          echo "ENVIRONMENT_NAME is set to: $ENVIRONMENT_NAME"
