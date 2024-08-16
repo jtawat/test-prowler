@@ -24,7 +24,10 @@ phases:
           # Update metadata files
           METADATA_FILES=$(find custom_checks -name "*.metadata.json")
           for file in $METADATA_FILES; do
-            jq --arg url "$NEW_RELATED_URL" '.RelatedUrl = $url' "$file" > temp.json && mv temp.json "$file"
+            jq --arg base_url "$BASE_URL" '
+              .RelatedUrl |= sub("https://[^/]+"; $base_url) |
+              .Remediation.Recommendation.Url |= sub("https://[^/]+"; $base_url)
+            ' "$file" > temp.json && mv temp.json "$file"
             
             # Print the updated content
             cat "$file"
