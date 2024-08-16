@@ -9,3 +9,14 @@ phases:
           # Set and echo environment variable
           ENVIRONMENT_NAME="${ENVIRONMENT}"
           echo "ENVIRONMENT_NAME is set to: $ENVIRONMENT_NAME"
+
+          # modify URL based on the environment
+          # Use if-else to set the NEW_RELATED_URL
+          if [ "$ENVIRONMENT_NAME" = "dev" ]; then
+              NEW_RELATED_URL="https://staging.kaloscloud.io/"
+          else
+              NEW_RELATED_URL="https://kaloscloud.io/"
+          fi
+
+          # echo the new URL
+          echo "NEW_RELATED_URL is set to: $NEW_RELATED_URL"
